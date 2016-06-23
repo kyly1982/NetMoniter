@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">NetMoniter</string>
+    <string name="address">地址：</string>
+    <string name="port">端口：</string>
+    <string name="save">保存</string>
+    <string name="connectToServer">连接</string>
+    <string name="closeConnect">断开</string>
+    <string name="createServer">创建服务器</string>
+    <string name="closeServer">关闭服务器</string>
+    <string name="hint1">点击创建服务器将模拟一个服务器，其它客户端可以接入</string>
 </resources>

@@ -1,10 +1,10 @@
 package com.test.www.netmoniter;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -17,21 +17,24 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.test.www.netmoniter.client.Client;
-import com.test.www.netmoniter.server.MyService;
+import com.test.www.netmoniter.server.Server;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements TextWatcher, View.OnClickListener, TextView.OnEditorActionListener,Client.OnResponseListener {
+public class MainActivity extends AppCompatActivity implements TextWatcher, View.OnClickListener, TextView.OnEditorActionListener,Client.OnResponseListener,Server.OnStatusChangeListener {
     private AppCompatEditText edt_host, edt_port;
     private AppCompatButton btn_save, btn_connect, btn_create;
     private ListView lv_data;
+    private AppCompatTextView tv_status;
 
     private DataAdapter mAdapter;
     private ArrayList<ServerInfo> serverInfos;
 
+    private Server mServer;
     private Client mClient;
-    private Intent mServerIntent;
     private Gson gson;
+
+    private int clientCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,14 +59,16 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, View
 
     @Override
     protected void onDestroy() {
-        if (null != mServerIntent) {
-            stopService(mServerIntent);
-            mServerIntent = null;
+        if (null != mServer) {
+            mServer.close();
         }
 
         if (null != mClient) {
             mClient.close();
-            mClient = null;
+        }
+
+        while (null != mServer && null != mClient){
+
         }
         super.onDestroy();
     }
@@ -76,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, View
             btn_connect = (AppCompatButton) findViewById(R.id.btn_connect);
             lv_data = (ListView) findViewById(R.id.lv_data);
             btn_create = (AppCompatButton) findViewById(R.id.btn_create);
+            tv_status = (AppCompatTextView) findViewById(R.id.tv_status);
 
             edt_host.addTextChangedListener(this);
             edt_port.addTextChangedListener(this);
@@ -99,9 +105,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, View
 
     private void createServer() {
         if (checkHostInput() && checkPortInput()) {
-            mServerIntent = new Intent(this, MyService.class);
-            mServerIntent.putExtra("PORT", Integer.valueOf(edt_port.getText().toString()));
-            startService(mServerIntent);
+            mServer = new Server(Integer.valueOf(edt_port.getText().toString()),this);
+
         } else {
             Toast.makeText(this,"未输入host或者host输入不正确",Toast.LENGTH_LONG).show();
         }
@@ -193,13 +198,26 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, View
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_connect:
-                createClient();
+                if (btn_connect.getText().equals(getString(R.string.connectToServer))) {
+                    createClient();
+                } else {
+                    if (null != mClient){
+                        mClient.close();
+                    }
+                }
                 break;
             case R.id.btn_save:
                 saveProfile();
                 break;
             case R.id.btn_create:
-                createServer();
+                if (btn_create.getText().equals(R.string.createServer)){
+                    createServer();
+                } else {
+                    if (null != mServer){
+                        mServer.close();
+                    }
+                }
+
                 break;
         }
     }
@@ -228,5 +246,53 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, View
         }
         serverInfos = gson.fromJson(infos,new TypeToken<ArrayList<ServerInfo>>(){}.getType());
         showData();
+    }
+
+    @Override
+    public void onAcpetedClient() {
+        tv_status.setText("有新客户端接入！"+clientCount+"个客户端已连接");
+    }
+
+    @Override
+    public void onCreateServer(boolean isSuccess) {
+        if (isSuccess){
+            btn_create.setText(R.string.closeServer);
+            tv_status.setText("服务器创建成功，可以接受其它客户端连接了！");
+        } else {
+            btn_create.setText(R.string.createServer);
+            tv_status.setText("创建服务器失败！");
+        }
+    }
+
+    @Override
+    public void onCloseServer(boolean isSuccess) {
+        if (isSuccess){
+            mServer = null;
+            btn_create.setText(R.string.createServer);
+            tv_status.setText("服务器已关闭！");
+        } else {
+            btn_create.setText(R.string.closeServer);
+            tv_status.setText("关闭服务器失败！");
+        }
+    }
+
+    @Override
+    public void onConnectClient(boolean isSuccess) {
+        if (isSuccess){
+            clientCount++;
+            tv_status.setText("连接客户端成功！当前客户端数量："+clientCount);
+        }else {
+            tv_status.setText("连接客户端失败！当前客户端数量："+clientCount);
+        }
+    }
+
+    @Override
+    public void onCloseClient(boolean isSuccess) {
+        if (isSuccess){
+            mClient = null;
+            btn_connect.setText(R.string.connectToServer);
+        } else {
+            btn_connect.setText(R.string.closeConnect);
+        }
     }
 }

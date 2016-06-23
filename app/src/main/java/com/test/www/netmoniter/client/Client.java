@@ -3,14 +3,10 @@ package com.test.www.netmoniter.client;
 import android.os.Handler;
 import android.os.Message;
 
-import java.io.IOException;
-import java.net.Socket;
-
 /**
  * Created by kyly on 2016/6/16.
  */
 public class Client {
-    private Socket mSocket;
     private String host;
     private int port;
     private OnResponseListener mListener;
@@ -43,30 +39,12 @@ public class Client {
         this.port = Integer.valueOf(port);
         this.host = host;
         this.mListener = listener;
-        initSocket();
+        initClitentTread();
     }
 
-    public void close(){
-        if (null != clientThread){
-            clientThread.close();
-        }
-        if (null != mSocket){
-            try {
-                if (null != mSocket.getInputStream()){
-                    mSocket.getInputStream().close();
-                }
-                if (null != mSocket.getOutputStream()) {
-                    mSocket.getOutputStream().close();
-                }
-                mSocket.close();
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-    }
 
     public boolean isConnected(){
-        return mSocket.isConnected();
+        return null == clientThread ? false:clientThread.isConnected();
     }
 
     public void setOnResponseListener(OnResponseListener listener){
@@ -74,20 +52,23 @@ public class Client {
     }
 
     public void sendInstructions(){
-
-    }
-
-    private void initSocket(){
-        try {
-            mSocket = new Socket(host,port);
-            mSocket.setKeepAlive(true);
-            clientThread = new ClientThread(mSocket,handler);
-            Thread thread = new Thread(clientThread);
-            thread.start();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (null != clientThread){
+            clientThread.requestData();
         }
     }
+
+    public void close(){
+        if (null != clientThread){
+            clientThread.close();
+        }
+    }
+
+    private void initClitentTread(){
+        clientThread = new ClientThread(host,port,handler);
+        new Thread(clientThread).start();
+        clientThread.requestData();
+    }
+
 
 
 }

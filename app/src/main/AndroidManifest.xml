@@ -24,11 +24,6 @@
             android:enabled="true"
             android:exported="true">
         </service>
-        <service
-            android:name=".server.MyService"
-            android:enabled="true"
-            android:exported="true">
-        </service>
     </application>
 
 </manifest>

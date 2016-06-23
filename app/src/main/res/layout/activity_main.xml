@@ -23,7 +23,7 @@
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:textSize="18sp"
-            android:text="地址："/>
+            android:text="@string/address"/>
 
         <android.support.v7.widget.AppCompatEditText
             android:id="@+id/edt_host"
@@ -47,7 +47,7 @@
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:textSize="18sp"
-            android:text="端口："/>
+            android:text="@string/port"/>
 
         <android.support.v7.widget.AppCompatEditText
             android:id="@+id/edt_port"
@@ -75,7 +75,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/lab_port"
-            android:text="保存"/>
+            android:text="@string/save"/>
 
         <android.support.v7.widget.AppCompatButton
             android:id="@+id/btn_connect"
@@ -83,15 +83,23 @@
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/btn_save"
             android:layout_toRightOf="@id/btn_save"
-            android:text="连接"/>
+            android:text="@string/connectToServer"/>
         <android.support.v7.widget.AppCompatButton
             android:id="@+id/btn_create"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/btn_save"
             android:layout_toRightOf="@id/btn_connect"
-            android:text="创建"
+            android:text="@string/createServer"
             />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/tv_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/btn_create"
+            android:text="@string/hint1"/>
     </RelativeLayout>
 
     <ListView
