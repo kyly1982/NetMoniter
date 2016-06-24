@@ -48,6 +48,7 @@ public class Server {
 
     private void initServerTherad() {
         mServerThread = new ServerThread(port, handler);
+        new Thread(mServerThread).start();
     }
 
     private void generateData(){

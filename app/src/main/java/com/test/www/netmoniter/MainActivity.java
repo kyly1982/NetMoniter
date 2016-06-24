@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, View
             edt_host.setOnEditorActionListener(this);
 
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         }
     }
 
@@ -210,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, View
                 saveProfile();
                 break;
             case R.id.btn_create:
-                if (btn_create.getText().equals(R.string.createServer)){
+                if (btn_create.getText().toString().equals(getString(R.string.createServer))){
                     createServer();
                 } else {
                     if (null != mServer){
